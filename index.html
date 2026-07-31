@@ -102,7 +102,7 @@ td{padding:8px 5px;border-bottom:1px solid var(--line)}
    ============================================================ */
 var DEPLOY = {
   SB_URL : 'https://wfmwxwdawiectcusjnkz.supabase.co',
-  SB_KEY : 'ANON_KALITNI_SHU_YERGA_QOYING',   // <-- boshqa ilovalaringizdagi anon key
+  SB_KEY : 'sb_publishable_xEPsFgv-ACNKeAFJt2MMiA_Q3Vbte4F',  // KROFF Supabase publishable key
   ADMIN_KEY : '199211',                        // <-- SQL dagi kod bilan bir xil bo'lsin
   TEST_KEY  : '199211',                        // <-- nomzod test bazasidagi kod (test ilovadagi bilan bir xil)
   SHOP   : 'KROFF'
@@ -120,12 +120,14 @@ var DEPLOY = {
     <h3>Kirish</h3>
     <label>Xodim</label>
     <select id="lgSel"><option value="">— yuklanmoqda —</option></select>
-    <label>PIN kod (4 raqam)</label>
-    <input id="lgPin" type="password" inputmode="numeric" maxlength="4" placeholder="••••">
+    <label>Parol</label>
+    <div class="row"><input id="lgPin" type="password" maxlength="24" placeholder="parol"
+      autocapitalize="off" autocorrect="off" spellcheck="false">
+      <button class="btn sm g" type="button" onclick="pkShow('lgPin')">👁</button></div>
     <div style="height:12px"></div>
     <button class="btn" onclick="doLogin()">Kirish</button>
     <div id="lgErr" class="warnbox hide" style="margin:12px 0 0"></div>
-    <div class="mut" style="margin-top:10px">PIN yo'q bo'lsa rahbardan so'rang. Birinchi kirishda PIN — <b>1234</b>.</div>
+    <div class="mut" style="margin-top:10px">Parolingiz yo'q bo'lsa rahbardan so'rang. Birinchi kirishda parol — <b>1234</b>, keyin o'zingiznikini qo'yasiz (kamida 4 belgi, harf ham bo'ladi).</div>
   </div>
 </div>
 
@@ -315,7 +317,7 @@ function doLogin(){
   if(!id) return toast('Xodimni tanlang');
   var x=XODIM.filter(function(a){return a.id===id})[0];
   if(!x) return toast('Xodim topilmadi');
-  if(String(x.pin||'1234')!==pin) return toast('PIN noto‘g‘ri');
+  if(String(x.pin||'1234')!==pin) return toast('Parol noto‘g‘ri');
   ME=x; localStorage.setItem('xk_me',id); enter();
 }
 function enter(){
@@ -470,12 +472,19 @@ function sbRpc(fn,args){
     .then(function(r){ if(!r.ok) return r.text().then(function(t){throw new Error(t||('RPC '+r.status))});
       return r.json()});
 }
+function pkShow(id){var i=$(id); i.type = i.type==='password' ? 'text' : 'password'}
 function pinForm(){
   sheet('<h2>Parolni o‘zgartirish</h2>'+
     '<div class="mut" style="margin-bottom:6px">'+esc(ME.ism)+'</div>'+
-    '<label>Eski parol</label><input id="pkOld" type="password" inputmode="numeric" maxlength="12">'+
-    '<label>Yangi parol (kamida 4 belgi)</label><input id="pkNew" type="password" maxlength="12">'+
-    '<label>Yangi parolni takrorlang</label><input id="pkNew2" type="password" maxlength="12">'+
+    '<label>Eski parol</label><div class="row"><input id="pkOld" type="password" maxlength="24"'+
+      ' autocapitalize="off" autocorrect="off" spellcheck="false">'+
+      '<button class="btn sm g" type="button" onclick="pkShow(\'pkOld\')">👁</button></div>'+
+    '<label>Yangi parol (kamida 4 belgi — raqam ham, harf ham bo‘ladi)</label>'+
+      '<div class="row"><input id="pkNew" type="password" maxlength="24"'+
+      ' autocapitalize="off" autocorrect="off" spellcheck="false">'+
+      '<button class="btn sm g" type="button" onclick="pkShow(\'pkNew\')">👁</button></div>'+
+    '<label>Yangi parolni takrorlang</label><input id="pkNew2" type="password" maxlength="24"'+
+      ' autocapitalize="off" autocorrect="off" spellcheck="false">'+
     '<div id="pkErr" class="warnbox hide" style="margin-top:12px"></div>'+
     '<div style="height:12px"></div><button class="btn" id="pkBtn" onclick="pinSave()">Saqlash</button>'+
     '<div style="height:8px"></div><button class="btn g" onclick="closeSheet()">Bekor</button>'+
@@ -1034,7 +1043,8 @@ function xForm(id,pre){
     '<div class="grid2"><div><label>Bo‘lim</label><input id="xfBol" value="'+esc(x.bolim||'')+'" placeholder="magazin"></div>'+
     '<div><label>Lavozim</label><input id="xfLav" value="'+esc(x.lavozim||'')+'"></div></div>'+
     '<div class="grid2"><div><label>Fiks oylik</label><input id="xfFiks" type="number" value="'+(x.fiks||'')+'"></div>'+
-    '<div><label>PIN</label><input id="xfPin" inputmode="numeric" maxlength="4" value="'+esc(x.pin||'1234')+'"></div></div>'+
+    '<div><label>Parol</label><input id="xfPin" maxlength="24" autocapitalize="off" autocorrect="off"'+
+      ' spellcheck="false" value="'+esc(x.pin||'1234')+'"></div></div>'+
     '<label>Baholash turi</label><select id="xfTur">'+
       '<option value="daromadli"'+(x.baho_turi!=='qollab'?' selected':'')+'>Daromadli (intizom 30 + vazifa 40 + natija 30)</option>'+
       '<option value="qollab"'+(x.baho_turi==='qollab'?' selected':'')+'>Qo‘llab-quvvatlovchi (intizom 40 + vazifa 60)</option></select>'+
@@ -1048,7 +1058,7 @@ function xSave(id){
   var ism=$('xfIsm').value.trim(); if(!ism) return toast('Ismni yozing');
   var row={ id:id||('x'+Date.now()), ism:ism, bolim:$('xfBol').value.trim()||null,
     lavozim:$('xfLav').value.trim()||null, fiks:+$('xfFiks').value||0,
-    pin:$('xfPin').value.trim()||'1234', baho_turi:$('xfTur').value,
+    pin:($('xfPin').value.trim().length>=4?$('xfPin').value.trim():'1234'), baho_turi:$('xfTur').value,
     tel:$('xfTel').value.trim()||null, faol:$('xfFaol').value==='1' };
   sbPost('xodim',[row],true,true).then(function(){
     var i=XODIM.findIndex(function(a){return a.id===row.id});
