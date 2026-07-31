@@ -111,7 +111,7 @@ var DEPLOY = {
 
 <div class="hdr">
   <div class="lg">K<span>ROFF</span> · Xodim</div>
-  <div class="who" id="who"></div>
+  <div class="who" id="who" onclick="meMenu()" style="cursor:pointer"></div>
 </div>
 
 <!-- ===== KIRISH ===== -->
@@ -322,10 +322,11 @@ function doLogin(){
 }
 function enter(){
   $('login').classList.add('hide'); $('app').classList.remove('hide');
-  $('who').innerHTML=esc(ME.ism)+'<br>'+esc(ME.bolim||'');
+  $('who').innerHTML='<span style="font-size:18px;vertical-align:middle">👤</span> '+esc(ME.ism)+
+    ' <span style="opacity:.6">▾</span><br>'+esc(ME.bolim||'');
   buildNav(); loadMine(); show('dav');
 }
-function chiqish(){ if(!confirm('Ilovadan chiqasizmi?'))return;
+function chiqish(){ if(!confirm('Hisobdan chiqasizmi? Keyin qayta parol so‘raladi.'))return;
   localStorage.removeItem('xk_me'); location.reload() }
 
 function buildNav(){
@@ -471,6 +472,19 @@ function sbRpc(fn,args){
   return fetch(SB+'rpc/'+fn,{method:'POST',headers:sbHead(false),body:JSON.stringify(args)})
     .then(function(r){ if(!r.ok) return r.text().then(function(t){throw new Error(t||('RPC '+r.status))});
       return r.json()});
+}
+function meMenu(){
+  sheet('<h2>'+esc(ME.ism)+'</h2><div class="mut" style="margin-bottom:14px">'+esc(ME.bolim||'')+'</div>'+
+    '<button class="btn g" onclick="pinForm()">🔑 Parolni o‘zgartirish</button><div style="height:8px"></div>'+
+    (ADMKEY?'<button class="btn g" onclick="admOut()">🔒 Boshqaruvdan chiqish</button><div style="height:8px"></div>':'')+
+    '<button class="btn bad" onclick="chiqish()">🚪 Hisobdan chiqish</button><div style="height:8px"></div>'+
+    '<button class="btn g" onclick="closeSheet()">Yopish</button>');
+}
+function admOut(){
+  ADMKEY=''; localStorage.removeItem('xk_admk');
+  $('admBody').classList.add('hide'); $('admGate').classList.remove('hide');
+  var e=$('admPin'); if(e){e.value=''; e.type='password'}
+  closeSheet(); show('dav'); toast('Boshqaruvdan chiqdingiz');
 }
 function pkShow(id){var i=$(id); i.type = i.type==='password' ? 'text' : 'password'}
 function pinForm(){
