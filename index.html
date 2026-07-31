@@ -152,6 +152,13 @@ var DEPLOY = {
     <h3>Oxirgi kunlar</h3>
     <div class="lst" id="dvLst"></div>
   </div>
+  <div id="dvPinWarn" class="warnbox hide">Sizda hali standart parol (1234) turibdi. O‘zingizga parol qo‘ying — boshqa xodim sizning nomingizdan belgilay olmasin.</div>
+  <div class="card">
+    <h3>Hisobim</h3>
+    <button class="btn g" onclick="pinForm()">🔑 Parolni o‘zgartirish</button>
+    <div style="height:8px"></div>
+    <button class="btn g" onclick="chiqish()">🚪 Chiqish</button>
+  </div>
 </div>
 
 <!-- VAZIFALAR -->
@@ -188,6 +195,7 @@ var DEPLOY = {
         <button class="btn sm g" onclick="admShow()">👁</button></div>
       <div style="height:12px"></div>
       <button class="btn" onclick="admIn()">Kirish</button>
+      <div id="admErr" class="warnbox hide" style="margin:12px 0 0"></div>
     </div>
   </div>
   <div id="admBody" class="hide">
@@ -373,6 +381,7 @@ function renderDav(){
   }
   box.innerHTML=h;
 
+  $('dvPinWarn').classList.toggle('hide', String(ME.pin||'1234')!=='1234');
   var mine=DAV.filter(function(r){return r.xodim_id===ME.id});
   var st=oyStat(ME,davrHoz());
   $('dvIsh').textContent=st.ishKun; $('dvKech').textContent=st.kechKun; $('dvYoq').textContent=st.kelmagan;
@@ -453,6 +462,44 @@ function masofa(a1,o1,a2,o2){
   var dA=(a2-a1)*t, dO=(o2-o1)*t;
   var x=Math.sin(dA/2)*Math.sin(dA/2)+Math.cos(a1*t)*Math.cos(a2*t)*Math.sin(dO/2)*Math.sin(dO/2);
   return 2*R*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
+}
+
+/* ================= PAROL ================= */
+function sbRpc(fn,args){
+  return fetch(SB+'rpc/'+fn,{method:'POST',headers:sbHead(false),body:JSON.stringify(args)})
+    .then(function(r){ if(!r.ok) return r.text().then(function(t){throw new Error(t||('RPC '+r.status))});
+      return r.json()});
+}
+function pinForm(){
+  sheet('<h2>Parolni o‘zgartirish</h2>'+
+    '<div class="mut" style="margin-bottom:6px">'+esc(ME.ism)+'</div>'+
+    '<label>Eski parol</label><input id="pkOld" type="password" inputmode="numeric" maxlength="12">'+
+    '<label>Yangi parol (kamida 4 belgi)</label><input id="pkNew" type="password" maxlength="12">'+
+    '<label>Yangi parolni takrorlang</label><input id="pkNew2" type="password" maxlength="12">'+
+    '<div id="pkErr" class="warnbox hide" style="margin-top:12px"></div>'+
+    '<div style="height:12px"></div><button class="btn" id="pkBtn" onclick="pinSave()">Saqlash</button>'+
+    '<div style="height:8px"></div><button class="btn g" onclick="closeSheet()">Bekor</button>'+
+    '<div class="mut" style="margin-top:10px">Parolni unutsangiz rahbar qayta tiklaydi.</div>');
+}
+function pkErr(t){var e=$('pkErr'); e.innerHTML=t; e.classList.remove('hide')}
+function pinSave(){
+  var o=$('pkOld').value.trim(), n=$('pkNew').value.trim(), n2=$('pkNew2').value.trim();
+  if(n.length<4) return pkErr('Yangi parol kamida 4 belgi bo‘lsin.');
+  if(n!==n2)     return pkErr('Yangi parollar mos kelmadi.');
+  if(n===o)      return pkErr('Yangi parol eskisidan farq qilsin.');
+  $('pkBtn').disabled=true;
+  sbRpc('xodim_parol',{p_id:ME.id, p_eski:o, p_yangi:n}).then(function(ok){
+    $('pkBtn').disabled=false;
+    if(ok!==true) return pkErr('Eski parol noto‘g‘ri.');
+    ME.pin=n;
+    var i=XODIM.findIndex(function(x){return x.id===ME.id}); if(i>=0) XODIM[i].pin=n;
+    closeSheet(); renderDav(); toast('Parol o‘zgartirildi');
+  }).catch(function(e){
+    $('pkBtn').disabled=false;
+    pkErr(/404|PGRST202/.test(String(e.message))
+      ? '<b>Funksiya bazada yo‘q.</b> <code>xodim_parol.sql</code> ni Supabase’da ishga tushiring.'
+      : 'Xato: <span class="mut">'+esc(String(e.message).slice(0,160))+'</span>');
+  });
 }
 
 /* ================= VAZIFALAR ================= */
@@ -551,13 +598,25 @@ function renderNat(){
 function admShow(){var i=$('admPin');i.type=i.type==='password'?'text':'password'}
 function admIn(){
   var k=$('admPin').value.trim(); if(!k) return toast('Kodni kiriting');
-  ADMKEY=k;
+  ADMKEY=k; $('admErr').classList.add('hide');
   sbPatch('sozlama','kalit=eq.asosiy',{tekshir:new Date().toISOString()},true).then(function(r){
-    if(!r||!r.length) throw new Error('ruxsat yo‘q');
+    if(!r||!r.length) throw new Error('BOSH');
     localStorage.setItem('xk_admk',k);
     $('admGate').classList.add('hide'); $('admBody').classList.remove('hide');
     loadAdm();
-  }).catch(function(){ ADMKEY=''; toast('Kod noto‘g‘ri yoki ruxsat yo‘q') });
+  }).catch(function(e){
+    ADMKEY='';
+    var m=String(e.message||e), t;
+    if(m==='BOSH') t='<b>Kod qabul qilinmadi.</b> Sabab ikkitadan biri:<br>'+
+      '1) SQL dagi <code>kroff_admin()</code> ichidagi koddan farq qilyapti;<br>'+
+      '2) <code>sozlama</code> jadvalida <code>asosiy</code> qatori yo‘q.<br>'+
+      '<span class="mut">Tuzatish SQL ni ishga tushiring.</span>';
+    else if(/column|tekshir|PGRST204|42703/i.test(m)) t='<b>Eski SQL ishlagan.</b> <code>sozlama</code> jadvalida '+
+      '<code>tekshir</code> ustuni yo‘q — tuzatish SQL ni ishga tushiring.<br><span class="mut">'+esc(m)+'</span>';
+    else if(/404/.test(m)) t='<b>Jadval yo‘q.</b> <code>xodim_jadval.sql</code> to‘liq ishga tushmagan.';
+    else t='<b>Xato:</b> <span class="mut">'+esc(m)+'</span>';
+    var e2=$('admErr'); e2.innerHTML=t; e2.classList.remove('hide');
+  });
 }
 var ADMT='hisob';
 function loadAdm(){
