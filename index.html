@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#1b1b2b">
+<title>KROFF Xodim</title>
+<link rel="manifest" href="data:application/json,%7B%22name%22%3A%22KROFF%20Xodim%22%2C%22short_name%22%3A%22Xodim%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%231b1b2b%22%2C%22theme_color%22%3A%22%231b1b2b%22%7D">
+<style>
+:root{
+  --bg:#12121c; --card:#1e1e2e; --card2:#26263a; --line:#33334a;
+  --tx:#eceaf5; --tx2:#9a97b5;
+  --acc:#7c5cff; --acc2:#a58bff;
+  --ok:#2fbf71; --warn:#f0a02c; --bad:#e2555b;
+  --r:14px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--tx);
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:15px}
+body{padding-bottom:78px}
+h1,h2,h3{margin:0}
+button{font-family:inherit;font-size:15px;cursor:pointer;border:0}
+input,select,textarea{font-family:inherit;font-size:15px;width:100%;padding:11px 12px;
+  background:var(--card2);border:1px solid var(--line);border-radius:10px;color:var(--tx);outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--acc)}
+label{display:block;font-size:12px;color:var(--tx2);margin:10px 0 5px}
+.hdr{position:sticky;top:0;z-index:20;background:#16162400;backdrop-filter:blur(12px);
+  background:rgba(18,18,28,.86);border-bottom:1px solid var(--line);
+  padding:12px 14px;display:flex;align-items:center;gap:10px}
+.hdr .lg{font-weight:800;letter-spacing:.5px;font-size:17px}
+.hdr .lg span{color:var(--acc2)}
+.hdr .who{margin-left:auto;font-size:12px;color:var(--tx2);text-align:right;line-height:1.3}
+.wrap{padding:14px;max-width:640px;margin:0 auto}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px;margin-bottom:12px}
+.card h3{font-size:14px;color:var(--tx2);font-weight:600;margin-bottom:10px;letter-spacing:.3px}
+.btn{background:var(--acc);color:#fff;padding:12px 16px;border-radius:11px;font-weight:600;width:100%}
+.btn.g{background:var(--card2);color:var(--tx);border:1px solid var(--line)}
+.btn.ok{background:var(--ok)} .btn.bad{background:var(--bad)} .btn.warn{background:var(--warn);color:#2a1c00}
+.btn:disabled{opacity:.45}
+.btn.sm{width:auto;padding:8px 12px;font-size:13px;border-radius:9px}
+.row{display:flex;gap:8px;align-items:center}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.stat{background:var(--card2);border-radius:11px;padding:11px}
+.stat b{display:block;font-size:19px;font-weight:700;margin-bottom:2px}
+.stat i{font-style:normal;font-size:11px;color:var(--tx2)}
+.big{font-size:44px;font-weight:800;letter-spacing:-1px;line-height:1}
+.mut{color:var(--tx2);font-size:12.5px}
+.pill{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600}
+.p-ok{background:rgba(47,191,113,.16);color:#6ee7a5}
+.p-w{background:rgba(240,160,44,.16);color:#f4bd6a}
+.p-b{background:rgba(226,85,91,.16);color:#f08b8f}
+.p-n{background:rgba(124,92,255,.16);color:var(--acc2)}
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;
+  background:rgba(22,22,34,.96);backdrop-filter:blur(12px);border-top:1px solid var(--line);
+  padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
+.nav button{flex:1;background:none;color:var(--tx2);font-size:10.5px;padding:6px 2px;display:flex;
+  flex-direction:column;align-items:center;gap:3px}
+.nav button em{font-style:normal;font-size:20px;line-height:1}
+.nav button.on{color:var(--acc2)}
+.view{display:none} .view.on{display:block}
+.lst{border-top:1px solid var(--line)}
+.it{display:flex;gap:10px;align-items:center;padding:11px 2px;border-bottom:1px solid var(--line)}
+.it .m{flex:1;min-width:0}
+.it .m b{display:block;font-weight:600;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.it .m i{font-style:normal;font-size:12px;color:var(--tx2)}
+.bar{height:7px;background:var(--card2);border-radius:6px;overflow:hidden;margin-top:5px}
+.bar i{display:block;height:100%;background:var(--acc);border-radius:6px}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:9px;-webkit-overflow-scrolling:touch}
+.tabs button{white-space:nowrap;background:var(--card2);color:var(--tx2);padding:8px 13px;
+  border-radius:20px;font-size:13px;border:1px solid var(--line)}
+.tabs button.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+.mask{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.62);display:none;align-items:flex-end}
+.mask.on{display:flex}
+.sheet{background:var(--card);width:100%;max-width:640px;margin:0 auto;border-radius:18px 18px 0 0;
+  padding:16px 16px calc(20px + env(safe-area-inset-bottom));max-height:88vh;overflow:auto}
+.sheet h2{font-size:17px;margin-bottom:4px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:96px;z-index:90;background:#000c;
+  color:#fff;padding:11px 16px;border-radius:12px;font-size:14px;max-width:88%;text-align:center;
+  opacity:0;transition:.25s;pointer-events:none}
+.toast.on{opacity:1}
+.pnch{width:100%;padding:26px 14px;border-radius:18px;font-size:20px;font-weight:800;color:#fff;
+  display:flex;flex-direction:column;align-items:center;gap:6px}
+.pnch em{font-style:normal;font-size:34px}
+.pnch small{font-weight:500;font-size:12.5px;opacity:.85}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{text-align:left;color:var(--tx2);font-weight:600;padding:7px 5px;border-bottom:1px solid var(--line);font-size:11px}
+td{padding:8px 5px;border-bottom:1px solid var(--line)}
+.sc{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.hide{display:none!important}
+.warnbox{background:rgba(240,160,44,.12);border:1px solid rgba(240,160,44,.35);color:#f4bd6a;
+  padding:10px 12px;border-radius:11px;font-size:12.5px;margin-bottom:12px}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+:focus-visible{outline:2px solid var(--acc2);outline-offset:2px}
+</style>
+</head>
+<body>
+
+<script>
+/* ============================================================
+   SOZLASH BLOKI — faqat shu yerni o'zgartirasiz
+   ============================================================ */
+var DEPLOY = {
+  SB_URL : 'https://wfmwxwdawiectcusjnkz.supabase.co',
+  SB_KEY : 'ANON_KALITNI_SHU_YERGA_QOYING',   // <-- boshqa ilovalaringizdagi anon key
+  ADMIN_KEY : '199211',                        // <-- SQL dagi kod bilan bir xil bo'lsin
+  TEST_KEY  : '199211',                        // <-- nomzod test bazasidagi kod (test ilovadagi bilan bir xil)
+  SHOP   : 'KROFF'
+};
+</script>
+
+<div class="hdr">
+  <div class="lg">K<span>ROFF</span> · Xodim</div>
+  <div class="who" id="who"></div>
+</div>
+
+<!-- ===== KIRISH ===== -->
+<div id="login" class="wrap">
+  <div class="card">
+    <h3>Kirish</h3>
+    <label>Xodim</label>
+    <select id="lgSel"><option value="">— yuklanmoqda —</option></select>
+    <label>PIN kod (4 raqam)</label>
+    <input id="lgPin" type="password" inputmode="numeric" maxlength="4" placeholder="••••">
+    <div style="height:12px"></div>
+    <button class="btn" onclick="doLogin()">Kirish</button>
+    <div id="lgErr" class="warnbox hide" style="margin:12px 0 0"></div>
+    <div class="mut" style="margin-top:10px">PIN yo'q bo'lsa rahbardan so'rang. Birinchi kirishda PIN — <b>1234</b>.</div>
+  </div>
+</div>
+
+<!-- ===== ILOVA ===== -->
+<div id="app" class="hide">
+
+<!-- DAVOMAT -->
+<div id="v-dav" class="view on wrap">
+  <div class="card" style="text-align:center">
+    <div class="mut" id="dvSana"></div>
+    <div class="big" id="dvSoat">--:--</div>
+    <div class="mut" id="dvHolat" style="margin-top:6px"></div>
+  </div>
+  <div id="dvBtnBox"></div>
+  <div class="card">
+    <h3>Shu oy</h3>
+    <div class="grid3">
+      <div class="stat"><b id="dvIsh">0</b><i>ish kuni</i></div>
+      <div class="stat"><b id="dvKech">0</b><i>kech qolgan</i></div>
+      <div class="stat"><b id="dvYoq">0</b><i>kelmagan</i></div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Oxirgi kunlar</h3>
+    <div class="lst" id="dvLst"></div>
+  </div>
+</div>
+
+<!-- VAZIFALAR -->
+<div id="v-vaz" class="view wrap">
+  <div class="tabs" id="vzTabs"></div>
+  <div class="card"><div class="lst" id="vzLst"></div></div>
+</div>
+
+<!-- NATIJA -->
+<div id="v-nat" class="view wrap">
+  <div class="card" style="text-align:center">
+    <div class="mut">Shu oylik bahoyingiz</div>
+    <div class="big" id="ntBall">0</div>
+    <div class="mut">100 balldan</div>
+    <div style="margin-top:8px" id="ntVerd"></div>
+  </div>
+  <div class="card">
+    <h3>Ball taqsimoti</h3>
+    <div id="ntBlok"></div>
+  </div>
+  <div class="card">
+    <h3>Oylik hisobi</h3>
+    <div id="ntOylik"></div>
+  </div>
+</div>
+
+<!-- BOSHQARUV -->
+<div id="v-adm" class="view wrap">
+  <div id="admGate">
+    <div class="card">
+      <h3>Boshqaruv</h3>
+      <label>Rahbar kodi</label>
+      <div class="row"><input id="admPin" type="password" placeholder="kod">
+        <button class="btn sm g" onclick="admShow()">👁</button></div>
+      <div style="height:12px"></div>
+      <button class="btn" onclick="admIn()">Kirish</button>
+    </div>
+  </div>
+  <div id="admBody" class="hide">
+    <div class="tabs" id="admTabs"></div>
+    <div id="admView"></div>
+  </div>
+</div>
+
+<div class="nav" id="nav"></div>
+</div>
+
+<div class="mask" id="mask" onclick="if(event.target===this)closeSheet()">
+  <div class="sheet" id="sheet"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================= YORDAMCHILAR ================= */
+var $=function(i){return document.getElementById(i)};
+var pad=function(n){return String(n).padStart(2,'0')};
+var esc=function(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
+var num=function(n){return (Math.round(n||0)).toLocaleString('ru-RU').replace(/\u00a0/g,' ')};
+function bugun(){var d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
+function hozir(){var d=new Date();return pad(d.getHours())+':'+pad(d.getMinutes())}
+function davrHoz(){return bugun().slice(0,7)}
+function m2d(hm){if(!hm)return 0;var p=String(hm).split(':');return (+p[0])*60+(+p[1]||0)}
+function d2m(m){m=Math.max(0,Math.round(m));return pad(Math.floor(m/60))+':'+pad(m%60)}
+function toast(t,ms){var e=$('toast');e.textContent=t;e.classList.add('on');
+  clearTimeout(window._tt);window._tt=setTimeout(function(){e.classList.remove('on')},ms||2600)}
+function sheet(html){$('sheet').innerHTML=html;$('mask').classList.add('on')}
+function closeSheet(){$('mask').classList.remove('on')}
+function oyNomi(d){var n=['Yanvar','Fevral','Mart','Aprel','May','Iyun','Iyul','Avgust','Sentabr','Oktabr','Noyabr','Dekabr'];
+  return n[+d.slice(5,7)-1]+' '+d.slice(0,4)}
+
+/* ================= SUPABASE ================= */
+var SB=DEPLOY.SB_URL+'/rest/v1/';
+function sbHead(admin){
+  var h={'apikey':DEPLOY.SB_KEY,'Authorization':'Bearer '+DEPLOY.SB_KEY,'Content-Type':'application/json'};
+  if(admin&&ADMKEY) h['x-kroff-key']=ADMKEY;
+  return h;
+}
+function sbGet(q,admin){
+  return fetch(SB+q,{headers:sbHead(admin)}).then(function(r){
+    if(!r.ok) throw new Error('GET '+r.status); return r.json()});
+}
+function sbPost(tbl,rows,admin,merge){
+  var h=sbHead(admin); h['Prefer']='return=representation'+(merge?',resolution=merge-duplicates':'');
+  return fetch(SB+tbl,{method:'POST',headers:h,body:JSON.stringify(rows)}).then(function(r){
+    if(!r.ok) return r.text().then(function(t){throw new Error(t||('POST '+r.status))}); return r.json()});
+}
+function sbPatch(tbl,q,body,admin){
+  var h=sbHead(admin); h['Prefer']='return=representation';
+  return fetch(SB+tbl+'?'+q,{method:'PATCH',headers:h,body:JSON.stringify(body)}).then(function(r){
+    if(!r.ok) return r.text().then(function(t){throw new Error(t||('PATCH '+r.status))}); return r.json()});
+}
+function sbDel(tbl,q,admin){
+  return fetch(SB+tbl+'?'+q,{method:'DELETE',headers:sbHead(admin)}).then(function(r){
+    if(!r.ok) throw new Error('DEL '+r.status); return true});
+}
+
+/* ---- oflayn navbat ---- */
+function qAdd(job){var q=JSON.parse(localStorage.getItem('xq')||'[]');q.push(job);
+  localStorage.setItem('xq',JSON.stringify(q))}
+function qFlush(){
+  var q=JSON.parse(localStorage.getItem('xq')||'[]'); if(!q.length) return Promise.resolve();
+  var left=[],ch=q.map(function(j){
+    var p = j.t==='post' ? sbPost(j.tbl,j.rows,j.a,j.m) : sbPatch(j.tbl,j.q,j.body,j.a);
+    return p.catch(function(){left.push(j)});
+  });
+  return Promise.all(ch).then(function(){localStorage.setItem('xq',JSON.stringify(left));
+    if(q.length&&!left.length) toast('Oflayn yozuvlar yuborildi')});
+}
+
+/* ================= HOLAT ================= */
+var XODIM=[], SOZ={}, ME=null, ADMKEY='', DAV=[], VAZ=[], NAT=[];
+var DEF_SOZ={
+  ish_boshi:'08:30', ish_oxiri:'18:00', bonus_daq:10, ish_kuni:26,
+  lat:0, lng:0, radius:250, gps_majburiy:false, dam_kun:0,
+  band:[{b:90,k:1.15},{b:75,k:1.05},{b:60,k:1.00},{b:45,k:0.90},{b:0,k:0.80}]
+};
+
+function lgErr(html){var e=$('lgErr'); e.innerHTML=html; e.classList.remove('hide')}
+function boot(){
+  ADMKEY=localStorage.getItem('xk_admk')||'';
+  if(/ANON_KALITNI/.test(DEPLOY.SB_KEY)){
+    $('lgSel').innerHTML='<option>— sozlanmagan —</option>';
+    return lgErr('<b>SB_KEY qo‘yilmagan.</b><br>Faylning boshidagi <code>DEPLOY.SB_KEY</code> ga Supabase anon kalitini yozing.');
+  }
+  if(location.protocol==='blob:'||location.protocol==='about:')
+    lgErr('Bu oynada tashqi bazaga ulanib bo‘lmaydi. Faylni yuklab olib brauzerda yoki GitHub Pages’da oching.');
+  Promise.all([
+    sbGet('xodim?select=*&order=bolim,ism'),
+    sbGet('sozlama?kalit=eq.asosiy&select=data')
+  ]).then(function(r){
+    XODIM=r[0]||[];
+    SOZ=Object.assign({},DEF_SOZ,(r[1]&&r[1][0]&&r[1][0].data)||{});
+    $('lgErr').classList.add('hide');
+    if(!XODIM.length) lgErr('Baza ulandi, lekin <b>xodim</b> jadvali bo‘sh. SQL faylni Supabase’da ishga tushiring.');
+    $('lgSel').innerHTML='<option value="">— tanlang —</option>'+XODIM.filter(function(x){return x.faol!==false})
+      .map(function(x){return '<option value="'+x.id+'">'+esc(x.ism)+' — '+esc(x.bolim||'')+'</option>'}).join('');
+    var saved=localStorage.getItem('xk_me');
+    if(saved&&XODIM.some(function(x){return x.id===saved})){ ME=XODIM.filter(function(x){return x.id===saved})[0]; enter(); }
+    qFlush();
+  }).catch(function(e){
+    $('lgSel').innerHTML='<option>— ulanmadi —</option>';
+    var m=String(e.message||e);
+    lgErr(/404/.test(m)? '<b>Jadval topilmadi.</b> <code>xodim_jadval.sql</code> ni Supabase → SQL Editor da ishga tushiring.'
+      : /401|403/.test(m)? '<b>Kalit noto‘g‘ri.</b> DEPLOY.SB_KEY dagi anon kalitni tekshiring.'
+      : '<b>Ulanmadi.</b> Internetni tekshiring. Agar Claude ichidagi ko‘rish oynasida bo‘lsangiz — faylni yuklab olib brauzerda oching.<br><span class="mut">'+esc(m)+'</span>');
+    console.error(e);
+  });
+}
+
+function doLogin(){
+  var id=$('lgSel').value, pin=$('lgPin').value.trim();
+  if(!id) return toast('Xodimni tanlang');
+  var x=XODIM.filter(function(a){return a.id===id})[0];
+  if(!x) return toast('Xodim topilmadi');
+  if(String(x.pin||'1234')!==pin) return toast('PIN noto‘g‘ri');
+  ME=x; localStorage.setItem('xk_me',id); enter();
+}
+function enter(){
+  $('login').classList.add('hide'); $('app').classList.remove('hide');
+  $('who').innerHTML=esc(ME.ism)+'<br>'+esc(ME.bolim||'');
+  buildNav(); loadMine(); show('dav');
+}
+function chiqish(){ if(!confirm('Ilovadan chiqasizmi?'))return;
+  localStorage.removeItem('xk_me'); location.reload() }
+
+function buildNav(){
+  var it=[['dav','🕘','Davomat'],['vaz','✅','Vazifa'],['nat','📊','Natija'],['adm','⚙️','Boshqaruv']];
+  $('nav').innerHTML=it.map(function(a){
+    return '<button id="nb-'+a[0]+'" onclick="show(\''+a[0]+'\')"><em>'+a[1]+'</em>'+a[2]+'</button>'}).join('');
+}
+function show(v){
+  ['dav','vaz','nat','adm'].forEach(function(k){
+    $('v-'+k).classList.toggle('on',k===v);
+    var b=$('nb-'+k); if(b) b.classList.toggle('on',k===v);
+  });
+  if(v==='dav') renderDav();
+  if(v==='vaz') renderVaz();
+  if(v==='nat') renderNat();
+  if(v==='adm'&&ADMKEY){ $('admGate').classList.add('hide'); $('admBody').classList.remove('hide'); admTab(ADMT); }
+}
+
+/* ================= MA'LUMOT YUKLASH ================= */
+function loadMine(){
+  var d=davrHoz();
+  return Promise.all([
+    sbGet('davomat?sana=gte.'+d+'-01&select=*&order=sana.desc&limit=2000'),
+    sbGet('vazifa?select=*&order=muddat.desc&limit=1000'),
+    sbGet('natija?davr=eq.'+d+'&select=*')
+  ]).then(function(r){ DAV=r[0]||[]; VAZ=r[1]||[]; NAT=r[2]||[];
+    renderDav(); }).catch(function(e){ console.error(e); toast('Ma’lumot yuklanmadi') });
+}
+
+/* ================= DAVOMAT ================= */
+function myToday(){ var b=bugun();
+  return DAV.filter(function(r){return r.xodim_id===ME.id&&r.sana===b})[0]||null }
+
+function renderDav(){
+  if(!ME)return;
+  var d=new Date();
+  $('dvSana').textContent=['Yakshanba','Dushanba','Seshanba','Chorshanba','Payshanba','Juma','Shanba'][d.getDay()]
+    +', '+d.getDate()+' '+oyNomi(bugun()).toLowerCase();
+  $('dvSoat').textContent=hozir();
+  var t=myToday(), box=$('dvBtnBox'), h='';
+  if(!t||!t.kelgan){
+    h='<button class="pnch" style="background:linear-gradient(135deg,#7c5cff,#5b3fd6)" onclick="punch(\'in\')">'+
+      '<em>📍</em>KELDIM<small>joylashuv bilan belgilanadi</small></button>';
+    $('dvHolat').innerHTML='<span class="pill p-n">Hali belgilanmagan</span>';
+  } else if(!t.ketgan){
+    h='<button class="pnch" style="background:linear-gradient(135deg,#e2555b,#b93b41)" onclick="punch(\'out\')">'+
+      '<em>🏁</em>KETDIM<small>kelgan: '+esc(t.kelgan)+'</small></button>';
+    $('dvHolat').innerHTML='<span class="pill p-ok">Ishdasiz</span> '+
+      (t.kech_min>SOZ.bonus_daq?'<span class="pill p-w">'+t.kech_min+' daq kech</span>':'');
+  } else {
+    h='<div class="card" style="text-align:center"><div class="mut">Bugungi ish vaqti</div>'+
+      '<div style="font-size:26px;font-weight:700;margin:4px 0">'+d2m(m2d(t.ketgan)-m2d(t.kelgan))+'</div>'+
+      '<div class="mut">'+esc(t.kelgan)+' → '+esc(t.ketgan)+'</div></div>';
+    $('dvHolat').innerHTML='<span class="pill p-n">Kun yakunlandi</span>';
+  }
+  box.innerHTML=h;
+
+  var mine=DAV.filter(function(r){return r.xodim_id===ME.id});
+  var st=oyStat(ME,davrHoz());
+  $('dvIsh').textContent=st.ishKun; $('dvKech').textContent=st.kechKun; $('dvYoq').textContent=st.kelmagan;
+  $('dvLst').innerHTML= mine.length? mine.slice(0,12).map(function(r){
+    var lab=r.status==='tatil'?'<span class="pill p-n">Ta’til</span>':
+            r.status==='kasal'?'<span class="pill p-n">Kasal</span>':
+            (r.kech_min>SOZ.bonus_daq?'<span class="pill p-w">'+r.kech_min+' daq kech</span>':'<span class="pill p-ok">O‘z vaqtida</span>');
+    return '<div class="it"><div class="m"><b>'+r.sana.slice(8)+'.'+r.sana.slice(5,7)+'</b>'+
+      '<i>'+esc(r.kelgan||'—')+' → '+esc(r.ketgan||'—')+
+      (r.masofa_m!=null?' · '+r.masofa_m+' m':'')+'</i></div>'+lab+'</div>'}).join('')
+    : '<div class="mut" style="padding:14px 0">Bu oyda yozuv yo‘q. Ishga kelganingizda «KELDIM» tugmasini bosing.</div>';
+}
+
+function oyStat(x,dav){
+  var rows=DAV.filter(function(r){return r.xodim_id===x.id&&String(r.sana).indexOf(dav)===0});
+  var ishKun=rows.filter(function(r){return r.kelgan}).length;
+  var kechKun=rows.filter(function(r){return (r.kech_min||0)>SOZ.bonus_daq}).length;
+  var kechJami=rows.reduce(function(s,r){return s+Math.max(0,(r.kech_min||0)-SOZ.bonus_daq)},0);
+  var uzr=rows.filter(function(r){return r.status==='tatil'||r.status==='kasal'}).length;
+  var reja=rejaKun(dav);
+  var kelmagan=Math.max(0,reja-ishKun-uzr);
+  return {ishKun:ishKun,kechKun:kechKun,kechJami:kechJami,uzr:uzr,reja:reja,kelmagan:kelmagan};
+}
+function rejaKun(dav){
+  var y=+dav.slice(0,4), m=+dav.slice(5,7), oxir=new Date(y,m,0).getDate();
+  var bugunD=new Date(), chek=(dav===davrHoz())?bugunD.getDate():oxir, n=0;
+  for(var i=1;i<=Math.min(chek,oxir);i++){
+    var w=new Date(y,m-1,i).getDay();
+    if(w!==SOZ.dam_kun) n++;
+  }
+  return n;
+}
+
+function punch(tur){
+  var btn=document.querySelector('.pnch'); if(btn) btn.disabled=true;
+  getPos(function(pos,err){
+    var lat=pos?pos.lat:null, lng=pos?pos.lng:null, m=null;
+    if(pos&&SOZ.lat&&SOZ.lng) m=Math.round(masofa(lat,lng,SOZ.lat,SOZ.lng));
+    if(SOZ.gps_majburiy){
+      if(err) { if(btn)btn.disabled=false; return toast('Joylashuv olinmadi. GPS ni yoqing'); }
+      if(m!=null&&m>SOZ.radius){ if(btn)btn.disabled=false;
+        return toast('Siz do‘kondan '+m+' m uzoqdasiz — belgilab bo‘lmaydi'); }
+    }
+    var b=bugun(), t=hozir(), cur=myToday();
+    if(tur==='in'){
+      var kech=Math.max(0,m2d(t)-m2d(SOZ.ish_boshi));
+      var row={id:ME.id+'_'+b, xodim_id:ME.id, ism:ME.ism, bolim:ME.bolim, sana:b, kelgan:t,
+        kech_min:kech, lat_in:lat, lng_in:lng, masofa_m:m, status:'keldi'};
+      DAV.unshift(row); renderDav();
+      sbPost('davomat',[row],false,true).then(function(){
+        toast(kech>SOZ.bonus_daq? kech+' daqiqa kech belgilandi':'Xush kelibsiz! Belgilandi');
+      }).catch(function(){ qAdd({t:'post',tbl:'davomat',rows:[row],m:true});
+        toast('Oflayn saqlandi — internet kelganda yuboriladi') });
+    } else {
+      if(!cur) { if(btn)btn.disabled=false; return toast('Avval «KELDIM» ni bosing'); }
+      var soat=(m2d(t)-m2d(cur.kelgan))/60;
+      var upd={ketgan:t, lat_out:lat, lng_out:lng, ish_soat:Math.round(soat*100)/100};
+      Object.assign(cur,upd); renderDav();
+      sbPatch('davomat','id=eq.'+encodeURIComponent(cur.id),upd).then(function(){
+        toast('Kun yakunlandi: '+d2m(soat*60));
+      }).catch(function(){ qAdd({t:'patch',tbl:'davomat',q:'id=eq.'+encodeURIComponent(cur.id),body:upd});
+        toast('Oflayn saqlandi') });
+    }
+  });
+}
+function getPos(cb){
+  if(!navigator.geolocation) return cb(null,'yo‘q');
+  var done=false;
+  var tm=setTimeout(function(){if(!done){done=true;cb(null,'vaqt')}},9000);
+  navigator.geolocation.getCurrentPosition(function(p){
+    if(done)return; done=true; clearTimeout(tm);
+    cb({lat:+p.coords.latitude.toFixed(6),lng:+p.coords.longitude.toFixed(6)},null);
+  },function(){ if(done)return; done=true; clearTimeout(tm); cb(null,'rad'); },
+  {enableHighAccuracy:true,timeout:8000,maximumAge:30000});
+}
+function masofa(a1,o1,a2,o2){
+  var R=6371000,t=Math.PI/180;
+  var dA=(a2-a1)*t, dO=(o2-o1)*t;
+  var x=Math.sin(dA/2)*Math.sin(dA/2)+Math.cos(a1*t)*Math.cos(a2*t)*Math.sin(dO/2)*Math.sin(dO/2);
+  return 2*R*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
+}
+
+/* ================= VAZIFALAR ================= */
+var VT='kunlik';
+function renderVaz(){
+  var turs=[['kunlik','Kunlik'],['haftalik','Haftalik'],['oylik','Oylik'],['yillik','Yillik']];
+  $('vzTabs').innerHTML=turs.map(function(t){
+    return '<button class="'+(VT===t[0]?'on':'')+'" onclick="VT=\''+t[0]+'\';renderVaz()">'+t[1]+'</button>'}).join('');
+  var mine=VAZ.filter(function(v){return v.tur===VT&&(v.xodim_id===ME.id||(!v.xodim_id&&v.bolim===ME.bolim))});
+  mine.sort(function(a,b){return (a.holat==='bajarildi')-(b.holat==='bajarildi')||String(b.muddat).localeCompare(String(a.muddat))});
+  $('vzLst').innerHTML= mine.length? mine.map(function(v){
+    var kech=v.muddat&&v.muddat<bugun()&&v.holat!=='bajarildi';
+    var lab=v.holat==='bajarildi'?'<span class="pill p-ok">Bajarildi</span>':
+            kech?'<span class="pill p-b">Muddati o‘tdi</span>':'<span class="pill p-w">Kutilmoqda</span>';
+    return '<div class="it"><div class="m"><b>'+esc(v.nom)+'</b><i>muddat: '+esc(v.muddat||'—')+
+      ' · og‘irlik '+(v.ogirlik||1)+'</i></div>'+
+      (v.holat==='bajarildi'?lab:'<button class="btn sm ok" onclick="vzDone(\''+v.id+'\')">Bajardim</button>')+
+      '</div>'}).join('')
+    : '<div class="mut" style="padding:14px 0">Bu turda vazifa yo‘q.</div>';
+}
+function vzDone(id){
+  var v=VAZ.filter(function(a){return a.id===id})[0]; if(!v)return;
+  var kech=v.muddat&&v.muddat<bugun();
+  var upd={holat:'bajarildi', bajarilgan:bugun(), kechikdi:!!kech};
+  Object.assign(v,upd); renderVaz();
+  sbPatch('vazifa','id=eq.'+encodeURIComponent(id),upd).then(function(){toast('Belgilandi')})
+    .catch(function(){qAdd({t:'patch',tbl:'vazifa',q:'id=eq.'+encodeURIComponent(id),body:upd});toast('Oflayn saqlandi')});
+}
+
+/* ================= BAHOLASH ================= */
+function baho(x,dav){
+  var qollab = (x.baho_turi==='qollab');
+  var BI=qollab?40:30, BV=qollab?60:40, BN=qollab?0:30;
+  var st=oyStat(x,dav);
+  var jarima=(st.kechKun*1 + st.kelmagan*3)/30;
+  var iF=Math.max(0,1-jarima);
+  var intizom=BI*iF;
+
+  var vz=VAZ.filter(function(v){return (v.xodim_id===x.id||(!v.xodim_id&&v.bolim===x.bolim))
+    && String(v.muddat||'').indexOf(dav)===0});
+  var jamiOg=vz.reduce(function(s,v){return s+(+v.ogirlik||1)},0);
+  var olgan=vz.reduce(function(s,v){
+    if(v.holat!=='bajarildi') return s;
+    return s+(+v.ogirlik||1)*(v.kechikdi?0.5:1)},0);
+  var vF = jamiOg? olgan/jamiOg : 1;
+  var vazifa=BV*vF;
+
+  var n=NAT.filter(function(r){return r.xodim_id===x.id&&r.davr===dav})[0];
+  var nF = BN? (n&&n.foiz!=null? Math.min(1,(+n.foiz)/100) : 0.6) : 0;
+  var natija=BN*nF;
+
+  var jami=Math.round(intizom+vazifa+natija);
+  var K=1;
+  for(var i=0;i<SOZ.band.length;i++){ if(jami>=SOZ.band[i].b){K=SOZ.band[i].k;break} }
+
+  var fiks=+x.fiks||0, kunlik=fiks/(SOZ.ish_kuni||26), soatlik=kunlik/8;
+  var ushla=Math.round(st.kelmagan*kunlik + st.kechJami*(soatlik/60));
+  var oylik=Math.max(0,Math.round(fiks*K-ushla));
+
+  var hissa=null;
+  if(!qollab&&n&&n.daromad!=null) hissa=Math.round((+n.daromad||0)-oylik-(+n.xarajat||0));
+
+  return {qollab:qollab,BI:BI,BV:BV,BN:BN,intizom:intizom,vazifa:vazifa,natija:natija,
+    jami:jami,K:K,fiks:fiks,ushla:ushla,oylik:oylik,st:st,vzSoni:vz.length,vF:vF,nF:nF,hissa:hissa,n:n};
+}
+function verdikt(j){
+  if(j>=90) return ['p-ok','A’lo — mukofot'];
+  if(j>=75) return ['p-ok','Yaxshi'];
+  if(j>=60) return ['p-n','Norma'];
+  if(j>=45) return ['p-w','Ogohlantirish'];
+  return ['p-b','Qoniqarsiz'];
+}
+
+function renderNat(){
+  var d=davrHoz(), b=baho(ME,d), v=verdikt(b.jami);
+  $('ntBall').textContent=b.jami;
+  $('ntVerd').innerHTML='<span class="pill '+v[0]+'">'+v[1]+'</span>';
+  var blok=[['Intizom',b.intizom,b.BI,b.st.kechKun+' kech · '+b.st.kelmagan+' kelmagan'],
+            ['Vazifalar',b.vazifa,b.BV,b.vzSoni+' ta vazifa · '+Math.round(b.vF*100)+'%']];
+  if(b.BN) blok.push(['Natija',b.natija,b.BN, b.n? Math.round(b.nF*100)+'% reja':'rahbar kiritmagan']);
+  $('ntBlok').innerHTML=blok.map(function(a){
+    return '<div style="margin-bottom:12px"><div class="row"><b style="flex:1">'+a[0]+'</b>'+
+      '<span class="mut">'+Math.round(a[1])+' / '+a[2]+'</span></div>'+
+      '<div class="bar"><i style="width:'+Math.round(a[1]/a[2]*100)+'%"></i></div>'+
+      '<div class="mut" style="margin-top:4px">'+a[3]+'</div></div>'}).join('');
+  $('ntOylik').innerHTML=
+    '<div class="it"><div class="m"><b>Fiks oylik</b></div>'+num(b.fiks)+'</div>'+
+    '<div class="it"><div class="m"><b>Koeffitsient</b><i>ball bo‘yicha</i></div>×'+b.K.toFixed(2)+'</div>'+
+    '<div class="it"><div class="m"><b>Ushlab qolish</b><i>kelmagan + kech</i></div>−'+num(b.ushla)+'</div>'+
+    '<div class="it" style="border:0"><div class="m"><b style="font-size:17px">Chiqadigan oylik</b></div>'+
+      '<b style="font-size:17px;color:'+(b.oylik>=b.fiks?'#6ee7a5':'#f08b8f')+'">'+num(b.oylik)+'</b></div>'+
+    '<div class="mut" style="margin-top:8px">Bu — joriy ballga qarab taxminiy hisob. Oy yakunida rahbar tasdiqlaydi.</div>';
+}
+
+/* ================= BOSHQARUV ================= */
+function admShow(){var i=$('admPin');i.type=i.type==='password'?'text':'password'}
+function admIn(){
+  var k=$('admPin').value.trim(); if(!k) return toast('Kodni kiriting');
+  ADMKEY=k;
+  sbPatch('sozlama','kalit=eq.asosiy',{tekshir:new Date().toISOString()},true).then(function(r){
+    if(!r||!r.length) throw new Error('ruxsat yo‘q');
+    localStorage.setItem('xk_admk',k);
+    $('admGate').classList.add('hide'); $('admBody').classList.remove('hide');
+    loadAdm();
+  }).catch(function(){ ADMKEY=''; toast('Kod noto‘g‘ri yoki ruxsat yo‘q') });
+}
+var ADMT='hisob';
+function loadAdm(){
+  var d=ADAV||davrHoz();
+  Promise.all([
+    sbGet('davomat?sana=gte.'+d+'-01&sana=lte.'+d+'-31&select=*&order=sana.desc&limit=3000',true),
+    sbGet('vazifa?select=*&order=muddat.desc&limit=2000',true),
+    sbGet('natija?davr=eq.'+d+'&select=*',true),
+    sbGet('xodim?select=*&order=bolim,ism',true)
+  ]).then(function(r){ DAV=r[0]||[]; VAZ=r[1]||[]; NAT=r[2]||[]; XODIM=r[3]||[]; admTab(ADMT); })
+   .catch(function(e){console.error(e);toast('Yuklanmadi')});
+}
+var ADAV=null;
+function admTab(t){
+  ADMT=t;
+  var tabs=[['hisob','Hisob-kitob'],['davomat','Davomat'],['vazifa','Vazifalar'],
+            ['natija','Natija'],['xodim','Xodimlar'],['nomzod','Nomzodlar'],['soz','Sozlamalar']];
+  $('admTabs').innerHTML=tabs.map(function(a){
+    return '<button class="'+(ADMT===a[0]?'on':'')+'" onclick="admTab(\''+a[0]+'\')">'+a[1]+'</button>'}).join('');
+  ({hisob:aHisob,davomat:aDavomat,vazifa:aVazifa,natija:aNatija,xodim:aXodim,nomzod:aNomzod,soz:aSoz})[t]();
+}
+function davrBar(){
+  var d=ADAV||davrHoz();
+  return '<div class="row" style="margin-bottom:12px"><button class="btn sm g" onclick="davrGo(-1)">‹</button>'+
+    '<div style="flex:1;text-align:center;font-weight:600">'+oyNomi(d)+'</div>'+
+    '<button class="btn sm g" onclick="davrGo(1)">›</button></div>';
+}
+function davrGo(n){
+  var d=ADAV||davrHoz(), y=+d.slice(0,4), m=+d.slice(5,7)+n;
+  if(m<1){m=12;y--} if(m>12){m=1;y++}
+  ADAV=y+'-'+pad(m); loadAdm();
+}
+
+/* ---- Hisob-kitob: bo'lim va xodim kesimida to'liq ---- */
+function hisobData(d){
+  var rows=XODIM.filter(function(x){return x.faol!==false})
+    .map(function(x){return {x:x,b:baho(x,d)}});
+  var g={};
+  rows.forEach(function(r){
+    var b=r.x.bolim||'(bo‘limsiz)';
+    if(!g[b]) g[b]={nom:b,rows:[],fiks:0,oylik:0,ushla:0,ball:0,daromad:0,xarajat:0,hissa:0,
+      ishKun:0,kech:0,kelmagan:0,hissaBor:false};
+    var G=g[b];
+    G.rows.push(r); G.fiks+=r.b.fiks; G.oylik+=r.b.oylik; G.ushla+=r.b.ushla;
+    G.ball+=r.b.jami; G.ishKun+=r.b.st.ishKun; G.kech+=r.b.st.kechJami; G.kelmagan+=r.b.st.kelmagan;
+    if(r.b.n){ G.daromad+=(+r.b.n.daromad||0); G.xarajat+=(+r.b.n.xarajat||0); }
+    if(r.b.hissa!=null){ G.hissa+=r.b.hissa; G.hissaBor=true; }
+  });
+  var gl=Object.keys(g).sort().map(function(k){
+    g[k].rows.sort(function(a,b){return b.b.jami-a.b.jami});
+    g[k].ortBall=Math.round(g[k].ball/g[k].rows.length);
+    return g[k];
+  });
+  return {rows:rows,gr:gl};
+}
+function aHisob(){
+  var d=ADAV||davrHoz(), H=hisobData(d);
+  var jF=0,jO=0,jU=0,jH=0,hBor=false;
+  H.gr.forEach(function(G){jF+=G.fiks;jO+=G.oylik;jU+=G.ushla;jH+=G.hissa;if(G.hissaBor)hBor=true});
+  var farq=jO-jF;
+
+  var top='<div class="grid2">'+
+    '<div class="stat"><b>'+num(jF)+'</b><i>fiks jami</i></div>'+
+    '<div class="stat"><b style="color:'+(farq<=0?'#6ee7a5':'#f4bd6a')+'">'+num(jO)+'</b>'+
+      '<i>hisoblangan jami ('+(farq>=0?'+':'−')+num(Math.abs(farq))+')</i></div></div>'+
+    '<div style="height:10px"></div><div class="grid2">'+
+    '<div class="stat"><b>−'+num(jU)+'</b><i>jami ushlab qolish</i></div>'+
+    (hBor?'<div class="stat"><b style="color:'+(jH>=0?'#6ee7a5':'#f08b8f')+'">'+(jH>=0?'+':'')+num(jH)+
+      '</b><i>korxonaga sof hissa</i></div>':'<div class="stat"><b>'+H.rows.length+'</b><i>faol xodim</i></div>')+
+    '</div><div style="height:12px"></div>';
+
+  /* --- bo'lim kesimi --- */
+  var bol='<div class="card"><h3>Bo‘limlar kesimi</h3><div class="sc"><table>'+
+    '<tr><th>Bo‘lim</th><th>Xod.</th><th>O‘rt. ball</th><th>Kelmagan</th><th>Kech daq</th>'+
+    '<th>Fiks</th><th>Ushlash</th><th>Oylik</th>'+(hBor?'<th>Sof hissa</th>':'')+'</tr>'+
+    H.gr.map(function(G){var v=verdikt(G.ortBall);
+      return '<tr><td><b>'+esc(G.nom)+'</b></td><td>'+G.rows.length+'</td>'+
+      '<td><span class="pill '+v[0]+'">'+G.ortBall+'</span></td>'+
+      '<td>'+G.kelmagan+'</td><td>'+G.kech+'</td>'+
+      '<td>'+num(G.fiks)+'</td><td>'+(G.ushla?'−'+num(G.ushla):'—')+'</td>'+
+      '<td><b>'+num(G.oylik)+'</b></td>'+
+      (hBor?'<td style="color:'+(G.hissa>=0?'#6ee7a5':'#f08b8f')+'">'+
+        (G.hissaBor?(G.hissa>=0?'+':'')+num(G.hissa):'—')+'</td>':'')+'</tr>'}).join('')+
+    '<tr style="border-top:2px solid var(--line)"><td><b>JAMI</b></td><td><b>'+H.rows.length+'</b></td>'+
+      '<td colspan="3"></td><td><b>'+num(jF)+'</b></td><td><b>−'+num(jU)+'</b></td>'+
+      '<td><b>'+num(jO)+'</b></td>'+(hBor?'<td><b>'+(jH>=0?'+':'')+num(jH)+'</b></td>':'')+'</tr>'+
+    '</table></div></div>';
+
+  /* --- xodim kesimi, bo'limlar ichida --- */
+  var xod=H.gr.map(function(G){
+    return '<div class="card"><h3>'+esc(G.nom)+' — '+G.rows.length+' xodim · o‘rtacha '+G.ortBall+' ball</h3>'+
+    '<div class="sc"><table>'+
+    '<tr><th>Xodim</th><th>Ish k.</th><th>Kech</th><th>Kelm.</th><th>Vazifa</th><th>Natija</th>'+
+    '<th>Ball</th><th>K</th><th>Fiks</th><th>Ushlash</th><th>Oylik</th><th>Farq</th></tr>'+
+    G.rows.map(function(r){
+      var b=r.b, v=verdikt(b.jami), f=b.oylik-b.fiks;
+      return '<tr onclick="xDetail(\''+r.x.id+'\')" style="cursor:pointer">'+
+      '<td><b>'+esc(r.x.ism)+'</b><br><span class="mut">'+(b.qollab?'qo‘llab':'daromadli')+'</span></td>'+
+      '<td>'+b.st.ishKun+'/'+b.st.reja+'</td>'+
+      '<td>'+(b.st.kechJami?b.st.kechJami+' daq':'—')+'</td>'+
+      '<td>'+(b.st.kelmagan||'—')+'</td>'+
+      '<td>'+Math.round(b.vF*100)+'%<br><span class="mut">'+b.vzSoni+' ta</span></td>'+
+      '<td>'+(b.BN?Math.round(b.nF*100)+'%':'—')+'</td>'+
+      '<td><span class="pill '+v[0]+'">'+b.jami+'</span></td>'+
+      '<td>×'+b.K.toFixed(2)+'</td>'+
+      '<td>'+num(b.fiks)+'</td>'+
+      '<td>'+(b.ushla?'−'+num(b.ushla):'—')+'</td>'+
+      '<td><b>'+num(b.oylik)+'</b></td>'+
+      '<td style="color:'+(f>=0?'#6ee7a5':'#f08b8f')+'">'+(f>=0?'+':'−')+num(Math.abs(f))+'</td></tr>'}).join('')+
+    '<tr style="border-top:2px solid var(--line)"><td><b>Bo‘lim jami</b></td>'+
+      '<td colspan="7"></td><td><b>'+num(G.fiks)+'</b></td><td><b>'+(G.ushla?'−'+num(G.ushla):'—')+'</b></td>'+
+      '<td><b>'+num(G.oylik)+'</b></td><td><b>'+((G.oylik-G.fiks)>=0?'+':'−')+num(Math.abs(G.oylik-G.fiks))+'</b></td></tr>'+
+    '</table></div></div>';
+  }).join('');
+
+  $('admView').innerHTML=davrBar()+top+bol+xod+
+    '<div class="mut" style="margin:0 0 12px">Qatorni bosing — bitta xodimning batafsil hisobi.</div>'+
+    '<button class="btn g" onclick="eksport()">📤 Excel (CSV) yuklash</button>';
+}
+function xDetail(id){
+  var x=XODIM.filter(function(a){return a.id===id})[0], d=ADAV||davrHoz(), b=baho(x,d), v=verdikt(b.jami);
+  sheet('<h2>'+esc(x.ism)+'</h2><div class="mut" style="margin-bottom:12px">'+esc(x.bolim||'')+' · '+
+    (b.qollab?'qo‘llab-quvvatlovchi':'daromadli')+' · '+oyNomi(d)+'</div>'+
+    '<div class="grid3"><div class="stat"><b>'+b.jami+'</b><i>ball</i></div>'+
+    '<div class="stat"><b>'+b.st.ishKun+'/'+b.st.reja+'</b><i>ish kuni</i></div>'+
+    '<div class="stat"><b>'+b.st.kechJami+'</b><i>kech daq</i></div></div>'+
+    '<div style="margin:12px 0"><span class="pill '+v[0]+'">'+v[1]+'</span></div>'+
+    '<div class="it"><div class="m"><b>Intizom</b></div>'+Math.round(b.intizom)+' / '+b.BI+'</div>'+
+    '<div class="it"><div class="m"><b>Vazifalar</b><i>'+b.vzSoni+' ta</i></div>'+Math.round(b.vazifa)+' / '+b.BV+'</div>'+
+    (b.BN?'<div class="it"><div class="m"><b>Natija</b></div>'+Math.round(b.natija)+' / '+b.BN+'</div>':'')+
+    '<div class="it"><div class="m"><b>Fiks</b></div>'+num(b.fiks)+'</div>'+
+    '<div class="it"><div class="m"><b>Ushlab qolish</b></div>−'+num(b.ushla)+'</div>'+
+    '<div class="it"><div class="m"><b>Chiqadigan oylik</b></div><b>'+num(b.oylik)+'</b></div>'+
+    (b.hissa!=null?'<div class="it"><div class="m"><b>Korxonaga sof hissa</b><i>daromad − oylik − xarajat</i></div>'+
+      '<b style="color:'+(b.hissa>=0?'#6ee7a5':'#f08b8f')+'">'+(b.hissa>=0?'+':'')+num(b.hissa)+'</b></div>':
+      (b.qollab?'<div class="warnbox" style="margin-top:12px">Bu xodimga daromad biriktirilmaydi — faqat intizom va vazifa bo‘yicha baholanadi.</div>':''))+
+    '<div style="height:14px"></div><button class="btn g" onclick="closeSheet()">Yopish</button>');
+}
+function eksport(){
+  var d=ADAV||davrHoz(), H=hisobData(d);
+  var out=['KROFF — xodim hisoboti;'+oyNomi(d),'',
+    'Bolim;Xodim;Turi;Ish kuni;Reja kun;Kech daq;Kelmagan;Vazifa %;Vazifa soni;Natija %;'+
+    'Ball;Koef;Fiks;Ushlash;Oylik;Farq;Daromad;Xarajat;Sof hissa'];
+  var jF=0,jO=0,jU=0;
+  H.gr.forEach(function(G){
+    G.rows.forEach(function(r){var b=r.b;
+      out.push([G.nom,r.x.ism,(b.qollab?'qollab':'daromadli'),b.st.ishKun,b.st.reja,b.st.kechJami,
+        b.st.kelmagan,Math.round(b.vF*100),b.vzSoni,(b.BN?Math.round(b.nF*100):''),
+        b.jami,b.K.toFixed(2),Math.round(b.fiks),b.ushla,b.oylik,b.oylik-b.fiks,
+        (b.n?Math.round(b.n.daromad||0):''),(b.n?Math.round(b.n.xarajat||0):''),
+        (b.hissa!=null?b.hissa:'')].join(';'))});
+    out.push([G.nom+' JAMI','','','','',G.kech,G.kelmagan,'','','','o‘rt. '+G.ortBall,'',
+      Math.round(G.fiks),G.ushla,G.oylik,G.oylik-G.fiks,Math.round(G.daromad),Math.round(G.xarajat),
+      (G.hissaBor?G.hissa:'')].join(';'));
+    out.push('');
+    jF+=G.fiks; jO+=G.oylik; jU+=G.ushla;
+  });
+  out.push(['UMUMIY JAMI','','','','','','','','','','','',Math.round(jF),jU,jO,jO-jF].join(';'));
+  var blob=new Blob(['\ufeff'+out.join('\n')],{type:'text/csv;charset=utf-8'});
+  var a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='xodim_'+d+'.csv'; a.click(); setTimeout(function(){URL.revokeObjectURL(a.href)},4000);
+}
+
+/* ---- Davomat jadvali ---- */
+function aDavomat(){
+  var d=ADAV||davrHoz(), y=+d.slice(0,4), m=+d.slice(5,7), oxir=new Date(y,m,0).getDate();
+  var head='<tr><th style="position:sticky;left:0;background:var(--card)">Xodim</th>';
+  for(var i=1;i<=oxir;i++) head+='<th>'+i+'</th>';
+  head+='</tr>';
+  var body=XODIM.filter(function(x){return x.faol!==false}).map(function(x){
+    var tr='<tr><td style="position:sticky;left:0;background:var(--card);white-space:nowrap">'+esc(x.ism)+'</td>';
+    for(var i=1;i<=oxir;i++){
+      var s=d+'-'+pad(i), r=DAV.filter(function(a){return a.xodim_id===x.id&&a.sana===s})[0];
+      var w=new Date(y,m-1,i).getDay(), ch='·', col='var(--tx2)';
+      if(w===SOZ.dam_kun) ch='–';
+      if(r&&(r.status==='tatil'||r.status==='kasal')){ch='T';col='var(--acc2)'}
+      else if(r&&r.kelgan){ ch=(r.kech_min>SOZ.bonus_daq)?'K':'✓'; col=(r.kech_min>SOZ.bonus_daq)?'var(--warn)':'var(--ok)'}
+      else if(w!==SOZ.dam_kun && s<=bugun()){ ch='✕'; col='var(--bad)'}
+      tr+='<td style="text-align:center;color:'+col+';cursor:pointer" onclick="davEdit(\''+x.id+'\',\''+s+'\')">'+ch+'</td>';
+    }
+    return tr+'</tr>';
+  }).join('');
+  $('admView').innerHTML=davrBar()+'<div class="card"><div class="sc"><table>'+head+body+'</table></div>'+
+    '<div class="mut" style="margin-top:10px">✓ o‘z vaqtida · K kech · ✕ kelmagan · T ta’til/kasal · – dam olish. '+
+    'Katakni bosib qo‘lda tuzatasiz.</div></div>';
+}
+function davEdit(xid,sana){
+  var x=XODIM.filter(function(a){return a.id===xid})[0];
+  var r=DAV.filter(function(a){return a.xodim_id===xid&&a.sana===sana})[0]||{};
+  sheet('<h2>'+esc(x.ism)+'</h2><div class="mut">'+sana+'</div>'+
+    '<label>Holat</label><select id="deSt">'+
+    ['keldi','tatil','kasal','kelmadi'].map(function(s){
+      return '<option value="'+s+'"'+((r.status||'kelmadi')===s?' selected':'')+'>'+
+      ({keldi:'Keldi',tatil:'Ta’til',kasal:'Kasal',kelmadi:'Kelmadi'})[s]+'</option>'}).join('')+'</select>'+
+    '<div class="grid2"><div><label>Kelgan</label><input id="deIn" placeholder="08:30" value="'+esc(r.kelgan||'')+'"></div>'+
+    '<div><label>Ketgan</label><input id="deOut" placeholder="18:00" value="'+esc(r.ketgan||'')+'"></div></div>'+
+    '<label>Izoh</label><input id="deIz" value="'+esc(r.izoh||'')+'">'+
+    '<div style="height:14px"></div><button class="btn" onclick="davSave(\''+xid+'\',\''+sana+'\')">Saqlash</button>'+
+    '<div style="height:8px"></div><button class="btn g" onclick="closeSheet()">Bekor</button>');
+}
+function davSave(xid,sana){
+  var x=XODIM.filter(function(a){return a.id===xid})[0];
+  var st=$('deSt').value, kel=$('deIn').value.trim(), ket=$('deOut').value.trim();
+  var row={id:xid+'_'+sana, xodim_id:xid, ism:x.ism, bolim:x.bolim, sana:sana, status:st,
+    kelgan:kel||null, ketgan:ket||null, izoh:$('deIz').value.trim()||null,
+    kech_min: (st==='keldi'&&kel)?Math.max(0,m2d(kel)-m2d(SOZ.ish_boshi)):0,
+    ish_soat: (kel&&ket)?Math.round((m2d(ket)-m2d(kel))/60*100)/100:null};
+  sbPost('davomat',[row],true,true).then(function(){
+    var i=DAV.findIndex(function(a){return a.id===row.id});
+    if(i>=0) DAV[i]=row; else DAV.push(row);
+    closeSheet(); admTab('davomat'); toast('Saqlandi');
+  }).catch(function(e){toast('Saqlanmadi: '+e.message)});
+}
+
+/* ---- Vazifalar ---- */
+function aVazifa(){
+  var d=ADAV||davrHoz();
+  var vz=VAZ.filter(function(v){return String(v.muddat||'').indexOf(d)===0});
+  $('admView').innerHTML=davrBar()+
+    '<button class="btn" onclick="vzForm()">➕ Yangi vazifa</button><div style="height:12px"></div>'+
+    '<div class="card"><div class="lst">'+ (vz.length? vz.map(function(v){
+      var who=v.xodim_id?(XODIM.filter(function(x){return x.id===v.xodim_id})[0]||{}).ism:'📁 '+(v.bolim||'hamma');
+      var lab=v.holat==='bajarildi'?'<span class="pill p-ok">Bajarildi</span>':
+        (v.muddat<bugun()?'<span class="pill p-b">O‘tdi</span>':'<span class="pill p-w">Kutilmoqda</span>');
+      return '<div class="it" onclick="vzForm(\''+v.id+'\')"><div class="m"><b>'+esc(v.nom)+'</b>'+
+        '<i>'+esc(who||'—')+' · '+esc(v.tur)+' · '+esc(v.muddat||'')+' · og‘. '+(v.ogirlik||1)+'</i></div>'+lab+'</div>'
+    }).join('') : '<div class="mut" style="padding:14px 0">Bu oyda vazifa yo‘q.</div>')+'</div></div>';
+}
+function vzForm(id){
+  var v=id?VAZ.filter(function(a){return a.id===id})[0]:{tur:'kunlik',ogirlik:1,muddat:bugun()};
+  sheet('<h2>'+(id?'Vazifani tahrirlash':'Yangi vazifa')+'</h2>'+
+    '<label>Nomi</label><input id="vfNom" value="'+esc(v.nom||'')+'">'+
+    '<label>Kimga</label><select id="vfKim"><option value="">— butun bo‘limga —</option>'+
+      XODIM.filter(function(x){return x.faol!==false}).map(function(x){
+        return '<option value="'+x.id+'"'+(v.xodim_id===x.id?' selected':'')+'>'+esc(x.ism)+'</option>'}).join('')+'</select>'+
+    '<label>Bo‘lim (agar xodim tanlanmasa)</label><select id="vfBol">'+
+      bolimlar().map(function(b){return '<option'+(v.bolim===b?' selected':'')+'>'+esc(b)+'</option>'}).join('')+'</select>'+
+    '<div class="grid2"><div><label>Turi</label><select id="vfTur">'+
+      ['kunlik','haftalik','oylik','yillik'].map(function(t){
+        return '<option'+(v.tur===t?' selected':'')+'>'+t+'</option>'}).join('')+'</select></div>'+
+    '<div><label>Og‘irlik (1–5)</label><input id="vfOg" type="number" min="1" max="5" value="'+(v.ogirlik||1)+'"></div></div>'+
+    '<label>Muddat</label><input id="vfMud" type="date" value="'+esc(v.muddat||bugun())+'">'+
+    '<div style="height:14px"></div><button class="btn" onclick="vzSave('+(id?"'"+id+"'":'null')+')">Saqlash</button>'+
+    (id?'<div style="height:8px"></div><button class="btn bad" onclick="vzDel(\''+id+'\')">🗑 O‘chirish</button>':'')+
+    '<div style="height:8px"></div><button class="btn g" onclick="closeSheet()">Yopish</button>');
+}
+function bolimlar(){
+  var s={}; XODIM.forEach(function(x){if(x.bolim)s[x.bolim]=1});
+  return Object.keys(s).sort();
+}
+function vzSave(id){
+  var nom=$('vfNom').value.trim(); if(!nom) return toast('Nomini yozing');
+  var xid=$('vfKim').value;
+  var row={ id:id||('vz'+Date.now()), nom:nom, xodim_id:xid||null,
+    bolim: xid? (XODIM.filter(function(x){return x.id===xid})[0]||{}).bolim : $('vfBol').value,
+    tur:$('vfTur').value, ogirlik:+$('vfOg').value||1, muddat:$('vfMud').value,
+    holat: id? (VAZ.filter(function(a){return a.id===id})[0]||{}).holat||'yangi' : 'yangi' };
+  sbPost('vazifa',[row],true,true).then(function(){
+    var i=VAZ.findIndex(function(a){return a.id===row.id});
+    if(i>=0) VAZ[i]=row; else VAZ.push(row);
+    closeSheet(); admTab('vazifa'); toast('Saqlandi');
+  }).catch(function(e){toast('Saqlanmadi: '+e.message)});
+}
+function vzDel(id){
+  if(!confirm('Vazifa o‘chirilsinmi?'))return;
+  sbDel('vazifa','id=eq.'+encodeURIComponent(id),true).then(function(){
+    VAZ=VAZ.filter(function(a){return a.id!==id}); closeSheet(); admTab('vazifa'); toast('O‘chirildi');
+  }).catch(function(){toast('O‘chirilmadi')});
+}
+
+/* ---- Natija (daromad/reja) ---- */
+function aNatija(){
+  var d=ADAV||davrHoz();
+  var xs=XODIM.filter(function(x){return x.faol!==false&&x.baho_turi!=='qollab'});
+  $('admView').innerHTML=davrBar()+
+    '<div class="warnbox">Bu yerga har bir daromad keltiruvchi xodimning oylik reja bajarilishi (%) va '+
+    'keltirgan daromadi kiritiladi. Qo‘llab-quvvatlovchi xodimlar bu ro‘yxatda yo‘q.</div>'+
+    '<div class="card"><div class="lst">'+ xs.map(function(x){
+      var n=NAT.filter(function(r){return r.xodim_id===x.id&&r.davr===d})[0];
+      return '<div class="it" onclick="natForm(\''+x.id+'\')"><div class="m"><b>'+esc(x.ism)+'</b>'+
+        '<i>'+(n? (n.foiz||0)+'% reja · daromad '+num(n.daromad||0) : 'kiritilmagan')+'</i></div>'+
+        (n?'<span class="pill p-ok">✓</span>':'<span class="pill p-w">—</span>')+'</div>'}).join('')+'</div></div>';
+}
+function natForm(xid){
+  var d=ADAV||davrHoz(), x=XODIM.filter(function(a){return a.id===xid})[0];
+  var n=NAT.filter(function(r){return r.xodim_id===xid&&r.davr===d})[0]||{};
+  sheet('<h2>'+esc(x.ism)+'</h2><div class="mut">'+oyNomi(d)+'</div>'+
+    '<label>Reja bajarilishi (%)</label><input id="ntF" type="number" value="'+(n.foiz!=null?n.foiz:'')+'" placeholder="100">'+
+    '<label>Keltirgan daromad (ustama/foyda, so‘m)</label><input id="ntD" type="number" value="'+(n.daromad||'')+'">'+
+    '<label>Unga ketgan boshqa xarajat (so‘m)</label><input id="ntX" type="number" value="'+(n.xarajat||'')+'">'+
+    '<label>Izoh</label><input id="ntI" value="'+esc(n.izoh||'')+'">'+
+    '<div style="height:14px"></div><button class="btn" onclick="natSave(\''+xid+'\')">Saqlash</button>'+
+    '<div style="height:8px"></div><button class="btn g" onclick="closeSheet()">Yopish</button>');
+}
+function natSave(xid){
+  var d=ADAV||davrHoz();
+  var row={id:xid+'_'+d, xodim_id:xid, davr:d, foiz:+$('ntF').value||0,
+    daromad:+$('ntD').value||0, xarajat:+$('ntX').value||0, izoh:$('ntI').value.trim()||null};
+  sbPost('natija',[row],true,true).then(function(){
+    var i=NAT.findIndex(function(a){return a.id===row.id});
+    if(i>=0) NAT[i]=row; else NAT.push(row);
+    closeSheet(); admTab('natija'); toast('Saqlandi');
+  }).catch(function(e){toast('Saqlanmadi: '+e.message)});
+}
+
+/* ---- Nomzodlar (test_natija) ---- */
+var NOMZOD=[], NZF='';
+function tHead(){
+  var h={'apikey':DEPLOY.SB_KEY,'Authorization':'Bearer '+DEPLOY.SB_KEY,'Content-Type':'application/json'};
+  h['x-kroff-key']=DEPLOY.TEST_KEY||ADMKEY; return h;
+}
+function tGet(q){return fetch(SB+q,{headers:tHead()}).then(function(r){
+  if(!r.ok) throw new Error('GET '+r.status); return r.json()})}
+function tPatch(q,body){var h=tHead(); h['Prefer']='return=representation';
+  return fetch(SB+'test_natija?'+q,{method:'PATCH',headers:h,body:JSON.stringify(body)}).then(function(r){
+    if(!r.ok) throw new Error('PATCH '+r.status); return r.json()})}
+
+function nzVerd(n){
+  n=+n||0;
+  if(n>=75) return ['p-ok','Olamiz'];
+  if(n>=55) return ['p-w','Sinov muddatiga'];
+  return ['p-b','Mos emas'];
+}
+function aNomzod(){
+  $('admView').innerHTML='<div class="card"><div class="mut">Yuklanmoqda…</div></div>';
+  tGet('test_natija?select=*&order=vaqt.desc&limit=300').then(function(rows){
+    NOMZOD=rows||[]; nzList();
+  }).catch(function(e){
+    $('admView').innerHTML='<div class="warnbox"><b>Nomzodlar bazasi o‘qilmadi.</b><br>'+
+      'DEPLOY.TEST_KEY nomzod test ilovasidagi kod bilan bir xil ekanini tekshiring. '+
+      '<span class="mut">('+esc(e.message)+')</span></div>';
+  });
+}
+function nzList(){
+  var hs=['','Yangi','Chaqirildi','Suhbatda','Ishga olindi','Rad etildi'];
+  var rows=NOMZOD.filter(function(r){return !NZF||(r.holat||'Yangi')===NZF});
+  $('admView').innerHTML=
+    '<div class="tabs">'+hs.map(function(h){
+      var n=h? NOMZOD.filter(function(r){return (r.holat||'Yangi')===h}).length : NOMZOD.length;
+      return '<button class="'+(NZF===h?'on':'')+'" onclick="NZF=\''+h+'\';nzList()">'+
+        (h||'Hammasi')+' '+n+'</button>'}).join('')+'</div>'+
+    '<div class="card"><div class="lst">'+ (rows.length? rows.map(function(r,i){
+      var v=nzVerd(r.natija), idx=NOMZOD.indexOf(r);
+      return '<div class="it" onclick="nzDetail('+idx+')"><div class="m"><b>'+esc(r.ism||'—')+'</b>'+
+        '<i>'+esc(r.tel||'')+(r.yosh?' · '+r.yosh+' yosh':'')+
+        (r.vaqt?' · '+String(r.vaqt).slice(0,10):'')+'</i>'+
+        '<div class="bar"><i style="width:'+Math.min(100,+r.natija||0)+'%"></i></div></div>'+
+        '<div style="text-align:right"><b>'+Math.round(+r.natija||0)+'%</b><br>'+
+        '<span class="pill '+v[0]+'">'+(r.holat||'Yangi')+'</span></div></div>'}).join('')
+      : '<div class="mut" style="padding:14px 0">Bu holatda nomzod yo‘q.</div>')+'</div></div>';
+}
+function jrend(v){
+  if(v==null||v==='') return '<div class="mut">—</div>';
+  if(typeof v==='string'){ try{ v=JSON.parse(v) }catch(e){ return '<div>'+esc(v)+'</div>' } }
+  if(Array.isArray(v)) return v.map(function(a){
+    if(a&&typeof a==='object') return '<div class="it"><div class="m">'+
+      Object.keys(a).map(function(k){return '<div><span class="mut">'+esc(k)+':</span> '+esc(a[k])+'</div>'}).join('')+
+      '</div></div>';
+    return '<div class="it"><div class="m">'+esc(a)+'</div></div>'}).join('');
+  if(typeof v==='object') return Object.keys(v).map(function(k){
+    var val=v[k];
+    return '<div class="it"><div class="m"><b>'+esc(k)+'</b></div>'+
+      esc(val&&typeof val==='object'? Object.keys(val).map(function(q){return q+' '+val[q]}).join(' · ') : val)+
+      '</div>'}).join('');
+  return '<div>'+esc(v)+'</div>';
+}
+function nzDetail(i){
+  var r=NOMZOD[i]; if(!r) return;
+  var v=nzVerd(r.natija);
+  var info=[['Telefon',r.tel],['Yosh',r.yosh],['Ma’lumot',r.malumot],['Mutaxassislik',r.mutaxassislik],
+    ['Tajriba',r.tajriba],['Oldingi ish joyi',r.ish_joyi],['Manzil',r.manzil],
+    ['Test vaqti',r.daqiqa?r.daqiqa+' daqiqa':''],['Topshirgan',r.vaqt?String(r.vaqt).slice(0,16).replace('T',' '):'']]
+    .filter(function(a){return a[1]});
+  sheet('<h2>'+esc(r.ism||'—')+'</h2>'+
+    '<div class="row" style="margin:6px 0 12px"><div class="big" style="font-size:34px">'+Math.round(+r.natija||0)+'%</div>'+
+    '<span class="pill '+v[0]+'" style="margin-left:10px">'+v[1]+'</span></div>'+
+    info.map(function(a){return '<div class="it"><div class="m"><b>'+a[0]+'</b></div>'+esc(a[1])+'</div>'}).join('')+
+    '<h3 style="margin:16px 0 6px;color:var(--tx2);font-size:13px">BO‘LIMLAR BO‘YICHA</h3>'+jrend(r.bolim)+
+    '<h3 style="margin:16px 0 6px;color:var(--tx2);font-size:13px">OCHIQ JAVOBLAR</h3>'+jrend(r.ochiq)+
+    '<label>Holat</label><select id="nzSt">'+
+      ['Yangi','Chaqirildi','Suhbatda','Ishga olindi','Rad etildi'].map(function(s){
+        return '<option'+((r.holat||'Yangi')===s?' selected':'')+'>'+s+'</option>'}).join('')+'</select>'+
+    '<label>Izoh (faqat rahbar ko‘radi)</label><textarea id="nzIz" rows="2">'+esc(r.izoh||'')+'</textarea>'+
+    '<div style="height:12px"></div><button class="btn" onclick="nzSave('+i+')">Saqlash</button>'+
+    '<div style="height:8px"></div><button class="btn ok" onclick="nzHire('+i+')">➕ Xodimlar ro‘yxatiga qo‘shish</button>'+
+    '<div style="height:8px"></div><button class="btn g" onclick="closeSheet()">Yopish</button>');
+}
+function nzSave(i){
+  var r=NOMZOD[i], upd={holat:$('nzSt').value, izoh:$('nzIz').value.trim()||null};
+  tPatch('id=eq.'+encodeURIComponent(r.id),upd).then(function(){
+    Object.assign(r,upd); closeSheet(); nzList(); toast('Saqlandi');
+  }).catch(function(e){toast('Saqlanmadi: '+e.message)});
+}
+function nzHire(i){
+  var r=NOMZOD[i];
+  tPatch('id=eq.'+encodeURIComponent(r.id),{holat:'Ishga olindi'}).then(function(){r.holat='Ishga olindi'}).catch(function(){});
+  xForm(null,{ism:r.ism, tel:r.tel});
+}
+function aXodim(){
+  $('admView').innerHTML='<button class="btn" onclick="xForm()">➕ Yangi xodim</button><div style="height:12px"></div>'+
+    bolimlar().map(function(b){
+      return '<div class="card"><h3>'+esc(b)+'</h3><div class="lst">'+
+        XODIM.filter(function(x){return x.bolim===b}).map(function(x){
+          return '<div class="it" onclick="xForm(\''+x.id+'\')"><div class="m"><b>'+esc(x.ism)+
+            (x.faol===false?' <span class="pill p-b">nofaol</span>':'')+'</b>'+
+            '<i>'+esc(x.lavozim||'')+' · '+num(x.fiks)+' so‘m · '+
+            (x.baho_turi==='qollab'?'qo‘llab-quvvatlovchi':'daromadli')+'</i></div>›</div>'}).join('')+
+        '</div></div>'}).join('');
+}
+function xForm(id,pre){
+  var x=id?XODIM.filter(function(a){return a.id===id})[0]
+          :Object.assign({faol:true,baho_turi:'daromadli',pin:'1234'},pre||{});
+  sheet('<h2>'+(id?esc(x.ism):'Yangi xodim')+'</h2>'+
+    '<label>Ism familiya</label><input id="xfIsm" value="'+esc(x.ism||'')+'">'+
+    '<div class="grid2"><div><label>Bo‘lim</label><input id="xfBol" value="'+esc(x.bolim||'')+'" placeholder="magazin"></div>'+
+    '<div><label>Lavozim</label><input id="xfLav" value="'+esc(x.lavozim||'')+'"></div></div>'+
+    '<div class="grid2"><div><label>Fiks oylik</label><input id="xfFiks" type="number" value="'+(x.fiks||'')+'"></div>'+
+    '<div><label>PIN</label><input id="xfPin" inputmode="numeric" maxlength="4" value="'+esc(x.pin||'1234')+'"></div></div>'+
+    '<label>Baholash turi</label><select id="xfTur">'+
+      '<option value="daromadli"'+(x.baho_turi!=='qollab'?' selected':'')+'>Daromadli (intizom 30 + vazifa 40 + natija 30)</option>'+
+      '<option value="qollab"'+(x.baho_turi==='qollab'?' selected':'')+'>Qo‘llab-quvvatlovchi (intizom 40 + vazifa 60)</option></select>'+
+    '<label>Telefon</label><input id="xfTel" value="'+esc(x.tel||'')+'">'+
+    '<label>Holati</label><select id="xfFaol"><option value="1"'+(x.faol!==false?' selected':'')+'>Faol</option>'+
+      '<option value="0"'+(x.faol===false?' selected':'')+'>Nofaol</option></select>'+
+    '<div style="height:14px"></div><button class="btn" onclick="xSave('+(id?"'"+id+"'":'null')+')">Saqlash</button>'+
+    '<div style="height:8px"></div><button class="btn g" onclick="closeSheet()">Yopish</button>');
+}
+function xSave(id){
+  var ism=$('xfIsm').value.trim(); if(!ism) return toast('Ismni yozing');
+  var row={ id:id||('x'+Date.now()), ism:ism, bolim:$('xfBol').value.trim()||null,
+    lavozim:$('xfLav').value.trim()||null, fiks:+$('xfFiks').value||0,
+    pin:$('xfPin').value.trim()||'1234', baho_turi:$('xfTur').value,
+    tel:$('xfTel').value.trim()||null, faol:$('xfFaol').value==='1' };
+  sbPost('xodim',[row],true,true).then(function(){
+    var i=XODIM.findIndex(function(a){return a.id===row.id});
+    if(i>=0) XODIM[i]=row; else XODIM.push(row);
+    closeSheet(); admTab('xodim'); toast('Saqlandi');
+  }).catch(function(e){toast('Saqlanmadi: '+e.message)});
+}
+
+/* ---- Sozlamalar ---- */
+function aSoz(){
+  $('admView').innerHTML='<div class="card"><h3>Ish rejimi</h3>'+
+    '<div class="grid2"><div><label>Ish boshlanishi</label><input id="szB" value="'+esc(SOZ.ish_boshi)+'"></div>'+
+    '<div><label>Ish tugashi</label><input id="szO" value="'+esc(SOZ.ish_oxiri)+'"></div></div>'+
+    '<div class="grid2"><div><label>Kechikish bonusi (daq)</label><input id="szBn" type="number" value="'+SOZ.bonus_daq+'"></div>'+
+    '<div><label>Oyiga ish kuni</label><input id="szIk" type="number" value="'+SOZ.ish_kuni+'"></div></div>'+
+    '<label>Dam olish kuni</label><select id="szDk">'+
+      ['Yakshanba','Dushanba','Seshanba','Chorshanba','Payshanba','Juma','Shanba'].map(function(n,i){
+        return '<option value="'+i+'"'+(SOZ.dam_kun===i?' selected':'')+'>'+n+'</option>'}).join('')+'</select>'+
+    '</div>'+
+    '<div class="card"><h3>Joylashuv nazorati</h3>'+
+    '<div class="grid2"><div><label>Kenglik (lat)</label><input id="szLa" value="'+(SOZ.lat||'')+'"></div>'+
+    '<div><label>Uzunlik (lng)</label><input id="szLo" value="'+(SOZ.lng||'')+'"></div></div>'+
+    '<div class="grid2"><div><label>Radius (metr)</label><input id="szR" type="number" value="'+SOZ.radius+'"></div>'+
+    '<div><label>GPS majburiymi</label><select id="szG"><option value="0"'+(!SOZ.gps_majburiy?' selected':'')+'>Yo‘q</option>'+
+      '<option value="1"'+(SOZ.gps_majburiy?' selected':'')+'>Ha</option></select></div></div>'+
+    '<div style="height:10px"></div><button class="btn g" onclick="szHozir()">📍 Hozirgi joyni do‘kon deb belgilash</button>'+
+    '<div class="mut" style="margin-top:8px">Do‘kon oldida turib bosing.</div></div>'+
+    '<div class="card"><h3>Ball → koeffitsient</h3>'+
+    SOZ.band.map(function(b,i){return '<div class="row" style="margin-bottom:8px">'+
+      '<input id="szB'+i+'" type="number" value="'+b.b+'" style="flex:1"> ball dan yuqori → '+
+      '<input id="szK'+i+'" type="number" step="0.01" value="'+b.k+'" style="flex:1"></div>'}).join('')+
+    '</div>'+
+    '<button class="btn" onclick="szSave()">Saqlash</button><div style="height:10px"></div>'+
+    '<button class="btn g" onclick="chiqish()">🚪 Hisobdan chiqish</button>';
+}
+function szHozir(){
+  toast('Joylashuv olinmoqda…');
+  getPos(function(p,e){ if(!p) return toast('Olinmadi — GPS ni yoqing');
+    $('szLa').value=p.lat; $('szLo').value=p.lng; toast('Olindi: '+p.lat+', '+p.lng)});
+}
+function szSave(){
+  var band=SOZ.band.map(function(b,i){return {b:+$('szB'+i).value||0,k:+$('szK'+i).value||1}});
+  band.sort(function(a,b){return b.b-a.b});
+  var s={ish_boshi:$('szB').value.trim(),ish_oxiri:$('szO').value.trim(),bonus_daq:+$('szBn').value||0,
+    ish_kuni:+$('szIk').value||26,dam_kun:+$('szDk').value,lat:+$('szLa').value||0,lng:+$('szLo').value||0,
+    radius:+$('szR').value||250,gps_majburiy:$('szG').value==='1',band:band};
+  sbPost('sozlama',[{kalit:'asosiy',data:s}],true,true).then(function(){
+    SOZ=Object.assign({},DEF_SOZ,s); toast('Saqlandi'); admTab('soz');
+  }).catch(function(e){toast('Saqlanmadi: '+e.message)});
+}
+
+/* ================= START ================= */
+setInterval(function(){ if($('v-dav').classList.contains('on')&&ME) $('dvSoat').textContent=hozir() },20000);
+window.addEventListener('online',qFlush);
+boot();
+</script>
+</body>
+</html>
